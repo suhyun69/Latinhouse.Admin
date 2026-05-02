@@ -21,7 +21,7 @@ import {
 import type { Lesson, LessonPageResponse, Genre, Region } from "@/types/lesson";
 import { LessonCreateModal } from "@/components/LessonCreateModal";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const API_BASE = "";
 
 const PAGE_SIZE = 20;
 
@@ -84,11 +84,11 @@ export default function LessonsPage() {
     setLoading(true);
     setError(null);
     try {
-      const url = new URL(`${API_BASE}/api/v1/lessons`);
-      url.searchParams.set("page", String(pageNum));
-      url.searchParams.set("size", String(PAGE_SIZE));
-
-      const res = await fetch(url.toString());
+      const params = new URLSearchParams({
+        page: String(pageNum),
+        size: String(PAGE_SIZE),
+      });
+      const res = await fetch(`${API_BASE}/api/v1/lessons?${params.toString()}`);
       if (!res.ok) {
         throw new Error(`API 오류: ${res.status} ${res.statusText}`);
       }
