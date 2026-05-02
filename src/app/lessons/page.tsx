@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Lesson, LessonPageResponse, Genre, Region } from "@/types/lesson";
+import { LessonCreateModal } from "@/components/LessonCreateModal";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -77,6 +78,8 @@ export default function LessonsPage() {
   const [genreFilter, setGenreFilter] = useState<Genre | "ALL">("ALL");
   const [regionFilter, setRegionFilter] = useState<Region | "ALL">("ALL");
 
+  const [createOpen, setCreateOpen] = useState(false);
+
   const fetchLessons = useCallback(async (pageNum: number) => {
     setLoading(true);
     setError(null);
@@ -113,16 +116,30 @@ export default function LessonsPage() {
     fetchLessons(0);
   };
 
+  const handleCreateSuccess = () => {
+    setPage(0);
+    fetchLessons(0);
+  };
+
   const totalPages = data?.totalPages ?? 1;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">레슨 관리</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          등록된 레슨 목록을 조회하고 관리합니다.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">레슨 관리</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            등록된 레슨 목록을 조회하고 관리합니다.
+          </p>
+        </div>
+        <Button onClick={() => setCreateOpen(true)}>Create</Button>
       </div>
+
+      <LessonCreateModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={handleCreateSuccess}
+      />
 
       {/* 검색 필터 */}
       <div className="flex items-center gap-3">
