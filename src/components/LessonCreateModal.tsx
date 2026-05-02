@@ -73,6 +73,20 @@ function orNull(value: string): string | null {
   return value.trim() === "" ? null : value.trim();
 }
 
+function addDays(base: Date, days: number): string {
+  const d = new Date(base);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 interface LessonCreateModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -106,6 +120,87 @@ export function LessonCreateModal({
         delete next[key];
         return next;
       });
+    }
+  }
+
+  async function handleRandom() {
+    setFieldErrors({});
+    setGlobalError(null);
+    setSubmitting(true);
+
+    const loPool = ["김철수", "박민준", "이재원", "최동현", "정우진"];
+    const laPool = ["이수진", "박지영", "김하은", "최유리", "정민지"];
+
+    const today = new Date();
+    const genre = pick(["S", "B"] as const);
+    const genreLabel = genre === "S" ? "Salsa" : "Bachata";
+    const level = pick(["초급", "중급", "심화"]);
+    const idx = randomInt(1, 99);
+    const instructorLo = pick(loPool);
+    const instructorLa = pick(laPool);
+    const startDate = addDays(today, randomInt(1, 30));
+    const startTime = pick(["19:00", "20:00", "14:00"]);
+    const endDate = addDays(new Date(startDate), randomInt(7, 42));
+    const [sh, sm] = startTime.split(":").map(Number);
+    const endTotalMin = sh * 60 + sm + 90;
+    const endTime = `${String(Math.floor(endTotalMin / 60)).padStart(2, "0")}:${String(endTotalMin % 60).padStart(2, "0")}`;
+    const place = pick(["라틴하우스 강남점", "홍대 댄스센터", "GS댄스스튜디오"]);
+    const price = pick([50000, 80000, 100000, 120000, 150000]);
+    const bank = pick(["신한", "국민", "우리", "카카오"]);
+    const accountNumber = `110-${String(randomInt(100, 999))}-${String(randomInt(100000, 999999))}`;
+
+    const body = {
+      title: `${genreLabel} ${level} ${idx}반`,
+      genre,
+      instructorLo,
+      instructorLa,
+      option: {
+        region: pick(["GN", "HD"] as const),
+        place,
+        placeUrl: null,
+        startDate,
+        startTime,
+        endDate,
+        endTime,
+      },
+      price,
+      bank,
+      accountNumber,
+      accountOwner: instructorLo,
+      discounts: [],
+      contacts: [],
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/lessons`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        handleOpenChange(false);
+        onSuccess();
+        return;
+      }
+
+      let errData: ApiErrorResponse | null = null;
+      try {
+        errData = await res.json();
+      } catch {
+        /* noop */
+      }
+      if (errData?.fieldErrors && errData.fieldErrors.length > 0) {
+        const map: Record<string, string> = {};
+        for (const fe of errData.fieldErrors) map[fe.field] = fe.message;
+        setFieldErrors(map);
+      } else {
+        setGlobalError(errData?.message ?? `요청 실패 (${res.status})`);
+      }
+    } catch {
+      setGlobalError("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -450,17 +545,22 @@ export function LessonCreateModal({
           )}
         </div>
 
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => handleOpenChange(false)}
-            disabled={submitting}
-          >
-            취소
+        <DialogFooter className="flex justify-between">
+          <Button variant="secondary" onClick={handleRandom} disabled={submitting}>
+            Random
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting ? "생성 중..." : "생성"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              disabled={submitting}
+            >
+              취소
+            </Button>
+            <Button onClick={handleSubmit} disabled={submitting}>
+              {submitting ? "생성 중..." : "생성"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
