@@ -18,8 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 import type { Lesson, LessonPageResponse, Genre, Region } from "@/types/lesson";
 import { LessonCreateModal } from "@/components/LessonCreateModal";
+import { LessonEditModal } from "@/components/LessonEditModal";
 
 const API_BASE = "";
 
@@ -79,6 +87,7 @@ export default function LessonsPage() {
   const [regionFilter, setRegionFilter] = useState<Region | "ALL">("ALL");
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [editLesson, setEditLesson] = useState<number | null>(null);
 
   const fetchLessons = useCallback(async (pageNum: number) => {
     setLoading(true);
@@ -139,6 +148,12 @@ export default function LessonsPage() {
         open={createOpen}
         onOpenChange={setCreateOpen}
         onSuccess={handleCreateSuccess}
+      />
+
+      <LessonEditModal
+        lessonNo={editLesson}
+        onOpenChange={(open) => { if (!open) setEditLesson(null); }}
+        onSuccess={() => { setPage(0); fetchLessons(0); }}
       />
 
       {/* 검색 필터 */}
@@ -206,13 +221,14 @@ export default function LessonsPage() {
                   <TableHead className="w-40">시작일시</TableHead>
                   <TableHead className="w-40">종료일시</TableHead>
                   <TableHead className="w-32 text-right">수강료</TableHead>
+                  <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredContent.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={9}
+                      colSpan={10}
                       className="text-center py-12 text-muted-foreground text-sm"
                     >
                       표시할 레슨이 없습니다.
@@ -245,6 +261,21 @@ export default function LessonsPage() {
                       </TableCell>
                       <TableCell className="text-right text-sm font-medium">
                         {formatPrice(lesson.price)}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">행 메뉴 열기</span>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditLesson(lesson.no)}>
+                              수정
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))
