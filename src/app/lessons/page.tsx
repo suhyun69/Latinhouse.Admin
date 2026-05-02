@@ -212,15 +212,15 @@ export default function LessonsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-16">No</TableHead>
-                  <TableHead>제목</TableHead>
-                  <TableHead className="w-28">장르</TableHead>
-                  <TableHead className="w-28">지역</TableHead>
-                  <TableHead className="w-28">강사(Lo)</TableHead>
-                  <TableHead className="w-28">강사(La)</TableHead>
-                  <TableHead className="w-40">시작일시</TableHead>
-                  <TableHead className="w-40">종료일시</TableHead>
-                  <TableHead className="w-32 text-right">수강료</TableHead>
+                  <TableHead className="w-16 text-center">No</TableHead>
+                  <TableHead className="text-center">제목</TableHead>
+                  <TableHead className="w-28 text-center">장르</TableHead>
+                  <TableHead className="w-28 text-center">지역</TableHead>
+                  <TableHead className="w-28 text-center">강사(Lo)</TableHead>
+                  <TableHead className="w-28 text-center">강사(La)</TableHead>
+                  <TableHead className="w-40 text-center">시작일시</TableHead>
+                  <TableHead className="w-40 text-center">종료일시</TableHead>
+                  <TableHead className="w-32 text-center">수강료</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
