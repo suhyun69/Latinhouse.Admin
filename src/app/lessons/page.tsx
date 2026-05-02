@@ -28,6 +28,7 @@ import { MoreHorizontal } from "lucide-react";
 import type { Lesson, LessonPageResponse, Genre, Region } from "@/types/lesson";
 import { LessonCreateModal } from "@/components/LessonCreateModal";
 import { LessonEditModal } from "@/components/LessonEditModal";
+import { LessonDetailModal } from "@/components/LessonDetailModal";
 
 const API_BASE = "";
 
@@ -88,6 +89,7 @@ export default function LessonsPage() {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editLesson, setEditLesson] = useState<number | null>(null);
+  const [detailLesson, setDetailLesson] = useState<number | null>(null);
 
   const fetchLessons = useCallback(async (pageNum: number) => {
     setLoading(true);
@@ -154,6 +156,11 @@ export default function LessonsPage() {
         lessonNo={editLesson}
         onOpenChange={(open) => { if (!open) setEditLesson(null); }}
         onSuccess={() => { setPage(0); fetchLessons(0); }}
+      />
+
+      <LessonDetailModal
+        lessonNo={detailLesson}
+        onOpenChange={(open) => { if (!open) setDetailLesson(null); }}
       />
 
       {/* 검색 필터 */}
@@ -240,7 +247,14 @@ export default function LessonsPage() {
                       <TableCell className="font-mono text-sm text-muted-foreground">
                         {lesson.no}
                       </TableCell>
-                      <TableCell className="font-medium">{lesson.title}</TableCell>
+                      <TableCell>
+                        <button
+                          className="font-medium text-left hover:underline underline-offset-2 cursor-pointer"
+                          onClick={() => setDetailLesson(lesson.no)}
+                        >
+                          {lesson.title}
+                        </button>
+                      </TableCell>
                       <TableCell>
                         <GenreBadge genre={lesson.genre} />
                       </TableCell>
